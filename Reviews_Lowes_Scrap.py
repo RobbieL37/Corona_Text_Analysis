@@ -105,13 +105,25 @@ print("SKU:", sku)
 print('\n')
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Total review stars ranking
+# ----------------------------------------------------------------------------------------------------------------------
+Total_stars_ranking = driver.find_element(By.XPATH, '//*[@id="rrApp"]/div/div[2]/div/div/div[1]/div[1]/span[2]/b').text
+# ----------------------------------------------------------------------------------------------------------------------
 # Load Reviews Information
 # ----------------------------------------------------------------------------------------------------------------------
 # Click load review
 load_review = driver.find_element(By.XPATH, './/*[@id="preview-reviews"]/div[2]/div/button')
 load_review.click()
 time.sleep(sec())  # Random Wait between request
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Total customer reviews number
+# ----------------------------------------------------------------------------------------------------------------------
+# Check this first can make a decision how many button clicking should be in the loop 
+review_num = driver.find_element(By.XPATH, '//*[@id="rrApp"]/div/div[2]/div/div/div[2]/div[3]').text
+print(review_num)
+# ----------------------------------------------------------------------------------------------------------------------
+# Click the load 10 more button 
+# ----------------------------------------------------------------------------------------------------------------------
 # For loop for loading 10 more reviews
 for i in range(1, 51):
     print(f'Click #{i}')
@@ -149,33 +161,23 @@ for i in range(6, 506):
                                   ']/div[1]/div/div[1]/div/p[2]')
     stars = driver.find_element(By.XPATH, '//*[@id="rrApp"]/div/div[2]/div/div/div[2]/div[' + str(i) +
                                   ']/div[1]/div/div[1]/div/span/meta').get_attribute("content")
-
+    
+    # Like & Dislike
+    like_dislike = driver.find_element(By.XPATH, '//*[@id="rrApp"]/div/div[2]/div/div/div[2]/div['+ str(i)+']/div[3]').text.replace("(", "").replace(")", "")
+    like = like_dislike.split("\n")[0]
+    dislike = like_dislike.split("\n")[1]
+    
     # Save collected data on a list
-    items = [market_place, url_path_toilet, product_name, sku, price, currency, subject, author, date, review, stars]
+    items = [market_place, url_path_toilet, product_name, sku, price, currency, Total_stars_ranking, subject, author, date, review, stars, like, dislike]
     review_list.append(items)
-
-like_list = []
-fbs = driver.find_elements(By.CLASS_NAME, 'review-row')
-for fb in fbs:
-    string = fb.find_element(By.CLASS_NAME, 'cgcfbbtncol').text
-    like = string[(string.find('(', 0) + 1): (string.find(')', 0))]  # need to improve
-    dislike = string[(string.find('(', 4) + 1): (string.find(')', 4))]  # need to improve
-
-    # Saving in a list
-    like_list.append([like, dislike])
-
+    
 # ----------------------------------------------------------------------------------------------------------------------
 # Export to dataframe
 # ----------------------------------------------------------------------------------------------------------------------
 # Put the lists into dataframe
-columns_name = ['Market_place', 'URL', 'Product_name', 'SKU', 'Price', 'Currency', 'Subject', 'Author', 'Date',
-                'Review', 'Stars']
+columns_name = ['Market_place', 'URL', 'Product_name', 'SKU', 'Price', 'Currency', 'Total_stars_ranking', 'Subject', 'Author', 'Date',
+                'Review', 'Stars', 'like', 'dislike']
 review_df = pd.DataFrame(data=review_list, columns=columns_name)
-like_df = pd.DataFrame(data=like_list, columns=['like', 'dislike'])
-
-# Mergin both data set
-review_df = review_df.merge(like_df, left_index=True, right_index=True, how='left')
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Export to .csv file
 # ----------------------------------------------------------------------------------------------------------------------
