@@ -1,6 +1,7 @@
 ###
 Porject name: Corona_Text_Analysis 
 
+Final Project Presentation Link: https://docs.google.com/presentation/d/1XiR--ID_MzYLWGb5MF8tKUFmhL0Z8CCKZtEpxMKQv4I/edit?usp=sharing
 
 Hello team, 
 
